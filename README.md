@@ -39,7 +39,101 @@ X_Scraper/
 - **Python 3.8+** (3.10+ recommended)
 - **pip** (Python package manager)
 
-## Installation
+## Docker Quick Start
+
+For the fastest setup with all dependencies pre-installed, use Docker. This method provides an isolated environment with Playwright and all required tools ready to use.
+
+### Prerequisites
+
+- **Docker** (with Docker Compose)
+- **Git** (optional, for cloning)
+
+### Quick Setup
+
+1. **Clone or download the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd X_Scraper
+   ```
+
+2. **Build and start the container**
+
+   ```bash
+   docker-compose up --build
+   ```
+
+   This builds the image and starts an interactive container with bash shell.
+
+3. **Access the scraper shell**
+
+   ```bash
+   docker exec -it scraper bash
+   ```
+
+   You're now in the container with all dependencies ready.
+
+### Using the Scraper
+
+Inside the container shell, convenient aliases are available:
+
+```bash
+# Scrape accounts with opts
+scrape --accounts elonmusk,OpenAI --limit 10
+
+# Scrape accounts with config file
+scrape --config config.json
+
+# Get help
+scrape --help
+```
+
+### Authentication
+
+Scraping works without login, but for authenticated access (recommended to avoid rate limits):
+
+**If you have Playwright installed on your host machine:**
+
+```bash
+# On host (outside Docker):
+python scrape.py --login
+```
+
+Complete login in browser, then the session is available in Docker.
+
+**Manual session setup (no Playwright required):**
+
+1. Install a browser extension like "Cookie-Editor" or "Storage Manager"
+2. Log in to x.com in your browser
+3. Use the extension to export cookies for domains `x.com'
+4. Create `.x_session/storage_state.json` with:
+
+```json
+{
+  "cookies": [
+    {
+      "name": "auth_token",
+      "value": "your_auth_token_value",
+      "domain": ".x.com",
+      "path": "/",
+      "httpOnly": true,
+      "secure": true
+    }
+    // Include all x.com cookies
+  ],
+  "origins": []
+}
+```
+
+### Data Persistence
+
+Scraped data, logs, and sessions persist on your host:
+
+- `data/` - Scraped posts (JSON/CSV)
+- `logs/` - Log files  
+- `.x_session/` - Login sessions
+
+## Manual Installation
 
 ### 1. Clone or download the repository
 
@@ -309,6 +403,7 @@ python scrape.py --accounts username1,username2
 #### "Account does not exist"
 
 Check if the username is correct. The scraper handles:
+
 - Suspended accounts
 - Non-existent accounts
 - Protected/private accounts (limited access)
@@ -316,6 +411,7 @@ Check if the username is correct. The scraper handles:
 #### Rate Limiting
 
 If you see rate limit errors:
+
 - Reduce `posts_per_account`
 - Increase `scroll_delay_min` and `scroll_delay_max`
 - Use `--headless` mode for faster recovery
@@ -324,6 +420,7 @@ If you see rate limit errors:
 #### CAPTCHA Prompts
 
 X may show CAPTCHAs to automated browsers:
+
 - Use headful mode (default) to solve manually
 - Try logging in first with `--login`
 - Reduce scraping frequency
@@ -331,6 +428,7 @@ X may show CAPTCHAs to automated browsers:
 #### Selector Breakage
 
 X frequently changes its DOM structure. If scraping fails:
+
 1. Check if X.com loads normally in a regular browser
 2. Update the selectors in `x_scraper/extractors.py`
 3. Check for project updates

@@ -1,0 +1,9 @@
+name: scraper
+services:
+  x-scraper:
+    build: .
+    container_name: scraper
+    volumes:
+    - .:/app
+    stdin_open: true
+    tty: true
